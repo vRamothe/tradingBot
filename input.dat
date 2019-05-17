@@ -1,0 +1,34 @@
+backtest = True
+FIT	= False
+N	 = 5000
+StopLossType  = False
+TrailingStop  = True
+StopLossValue = 5
+
+APIK	= HGKS3KMW-R1DRG5CJ-MMTPHA40-JVN9DR7L
+APIS	= 2670d0a7345b1529bc5ea43e993708c6c0a1216370d898bca83b29f32ac7734bb1767791c16ee4311229a6fdfb6819373d513eb2fc4955730c713e8b70e32d4c
+
+exchange	= poloniex
+Pair 		= USDT_BTC
+period		= 14400
+
+MACD1		= 12
+MACD2		= 26
+nEMA		= 2
+EMAfast	 	= 20
+EMAslow	 	= 50
+nMA		= 2
+MAfast		= 20
+MAslow		= 50
+RSIoverbuy	= 70
+RSIoversold	= 25
+RSImiddle	= 50
+RSIlength	= 14
+sRSIoverbuy	= 75
+sRSIoversold	= 25
+sRSImiddle	= 50
+sRSIlength	= 14
+Bollingerlenght = 50
+Bollingerspread = 2
+
+SignalWeigths =  1 1 1 1 1 1 1 1 1
