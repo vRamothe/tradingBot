@@ -1,5 +1,6 @@
 backtest = True
 FIT	= False
+Plot	= False
 N	 = 5000
 StopLossType  = False
 TrailingStop  = True

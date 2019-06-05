@@ -1,7 +1,7 @@
 import indicators
 import pandas as pd
 from numpy import asarray
-import fitParameters as fp
+import FIT.fitParameters as fp
 
 def reversal(df):
     df1 = df.shift(1)

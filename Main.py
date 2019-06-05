@@ -6,16 +6,18 @@ import numpy as np
 import pandas as pd
 from pandas.io.json import json_normalize
 import datetime
-import _tkinter
-#import tkinter
+#import _tkinter
+import tkinter
 
 import indicators
 import strategies
 import bot
 
 #from matplotlib.finance import candlestick2_ohlc
-#from mpl_finance import candlestick_ohlc
-#import matplotlib.pyplot as plt
+from mpl_finance import candlestick_ohlc
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.use('tkagg')
 
 ##################
 # User Interface #
@@ -258,17 +260,59 @@ for i in range(len(trades)-1):
         nLoss +=1
         lLoss.append(spread)
 
+
 avgWin = totalWin/nWin
 avgLoss = totalLoss/nLoss
 stdWin = np.std(np.asarray(lWins))
 stdLoss = np.std(np.asarray(lLoss))
 
-fid = open('fit.out','w+')
-line = '{}{}{}{}{}{}{}\n'.format(profit,totalWin,totalLoss,avgWin,avgLoss,stdWin,stdLoss)
+fid = open('OUT/fit.out','w+')
+line = 'profit%\tWins\tLoss\tavgWins\tavgLoss\tstdWins\tavgLoss\n'
+fid.write(line)
+pp = (totale - initialBalance)/initialBalance *100.
+line = '{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\n'.format(pp,totalWin,totalLoss,avgWin,avgLoss,stdWin,stdLoss)
 fid.write(line)
 fid.close()
 
-if not inp['FIT']:
+data.to_csv('OUT/data.csv', sep = '\t')
+
+buys = []
+buyDate = []
+sells = []
+sellDate = []
+
+
+for i in range(len(trades)):
+    if trades[i][-1] == 'buy':
+        buys.append(trades[i][1])
+        buyDate.append(trades[i][0])
+    else:
+        sells.append(trades[i][1])
+        sellDate.append(trades[i][0])
+
+fout = open('OUT/balance.txt','w')
+fout.write('Date\tBalance\n')
+for i in range(len(dates)):
+    line = '{}\t{}\n'.format(dates[i],balance[i])
+    fout.write(line)
+fout.close()
+
+fout = open('OUT/buys.txt','w')
+fout.write('Date\tBuy\n')
+for i in range(len(buyDate)):
+    line = '{}\t{}\n'.format(buyDate[i],buys[i])
+    fout.write(line)
+fout.close()
+
+fout = open('sells.txt','w')
+fout.write('Date\tSell\n')
+for i in range(len(sellDate)):
+    line = '{}\t{}\n'.format(sellDate[i],sells[i])
+    fout.write(line)
+fout.close()
+
+
+if inp['Plot']:
     print('Total balance\t{}'.format(totale))
     print('Profit = {:5.2f}% over {} periods'.format((totale - initialBalance)/initialBalance *100.,len(closes)))
     print('{} winning trades, {} losing trade'.format(nWin,nLoss))
@@ -280,33 +324,18 @@ if not inp['FIT']:
     # Plots #
     #########
 
-    buys = []
-    buyDate = []
-    sells = []
-    sellDate = []
-
-
-    for i in range(len(trades)):
-        if trades[i][-1] == 'buy':
-            buys.append(trades[i][1])
-            buyDate.append(trades[i][0])
-        else:
-            sells.append(trades[i][1])
-            sellDate.append(trades[i][0])
-
     #plt.rcParams["figure.figsize"] = (24,12)
     #fig, ax = plt.subplots()
     ax1 = plt.subplot2grid((9,1), (0,0), rowspan=7, colspan=1)
-
+    """
     txt = 'Profit = {:5.2f}%\n{} Winning trade\n{} Losing trades\naverage win = {:5.2f}%\naverage loss = {:5.2f}%\nMax Loss = {:5.2f}%'.format(profit,nWin,nLoss,avgWin,avgLoss,maxLoss)
     plt.text(min(dates)*0.2, max(closes)*0.8, txt, bbox=dict(facecolor='gray', alpha=0.5))
-
+    """
     candlestick_ohlc(ax1,zip(dates,opens,highs,lows,closes),width=0.6, colorup='g')
     plt.grid()
     plt.plot(dates,data.MA_20, 'r-')
     plt.plot(dates,data.MA_50, 'b-')
     plt.plot(dates,data.MA_100, 'c-')
-    plt.plot(dates,data.MA_100, 'k-')
     plt.plot(dates,data.PSAR, 'k:')
     #plt.plot(dates,data.KCU_20, 'b--')
     #plt.plot(dates,data.KCD_20, 'b--')
@@ -316,22 +345,11 @@ if not inp['FIT']:
     plt.plot(buyDate,buys, 'k^', lw = 10)
     plt.plot(sellDate,sells, 'kv', lw = 10)
 
-    """
-    plt.plot(dates,Ind['BBU'], 'b-')
-    plt.plot(dates,Ind['BBD'], 'b-')
-    plt.plot(dates,Ind['KCU'], 'b-')
-    plt.plot(dates,Ind['KCD'], 'b-')
-    plt.plot(dates,Ind['MA20'], 'r-')
-    plt.plot(dates,Ind['MA100'], 'g:')
-    plt.plot(dates,Ind['BBMA'], 'b-')
-    plt.plot(dates,Ind['PSAR'], 'k.')
-    """
 
     axy = ax1.twinx()  # instantiate a second axes that shares the same x-axis
     axy.set_ylabel('balance USD', )  # we already handled the x-label with ax1
     axy.plot(dates, balance, 'k-', )
     axy.tick_params(axis='y', )
-
     """
     ax2 = plt.subplot2grid((9,1), (5,0), rowspan=1, colspan=1, sharex=ax1)
     plt.grid()
@@ -346,7 +364,7 @@ if not inp['FIT']:
     ax3.plot(dates,data.RSI_14, 'b-')
     ax3.axhline( y = 70, ls = ':', c = 'b')
     ax3.axhline( y = 30, ls = ':', c = 'b')
-
+    """
     ax4 = plt.subplot2grid((9,1), (7,0), rowspan=1, colspan=1, sharex=ax1)
     plt.grid()
     ax4.plot(dates,Signal)
@@ -355,7 +373,6 @@ if not inp['FIT']:
     ax5 = plt.subplot2grid((9,1), (8,0), rowspan=1, colspan=1, sharex=ax1)
     plt.grid()
     ax5.plot(dates,devSignal)
-    """
 
     plt.subplots_adjust(wspace=0, hspace=0)
     plt.show()
