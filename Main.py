@@ -4,7 +4,7 @@ import pprint,time
 import sys, getopt
 import numpy as np
 import pandas as pd
-from pandas.io.json import json_normalize
+from pandas import json_normalize
 import datetime
 #import _tkinter
 import tkinter
@@ -14,7 +14,7 @@ import strategies
 import bot
 
 #from matplotlib.finance import candlestick2_ohlc
-from mpl_finance import candlestick_ohlc
+from plotly.graph_objects import Candlestick
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('tkagg')
@@ -60,8 +60,16 @@ with open('input.dat','r') as inpt:
                 print('program exit')
                 sys.exit()
 
+if inp['exchange'] == 'alpaca':
+    from APIs import alpaca
+    API = alpaca(inp['APIK'], inp['APIS'])
+    c1 = inp['Pair'].split('_')[0]
+    c2 = inp['Pair'].split('_')[1]
+    def query(inp,startTime,endTime):
+        result = API.api_query("get_crypto_bars",{"symbol":inp['Pair'],"start":startTime,"end":endTime,"timeframe":inp['period']})
+        return result
 
-if inp['exchange'] == 'poloniex':
+elif inp['exchange'] == 'poloniex':
     from APIs.poloniex import poloniex
     API=poloniex(inp['APIK'],inp['APIS'])
     c1 = inp['Pair'].split('_')[0]
@@ -71,7 +79,7 @@ if inp['exchange'] == 'poloniex':
         return result
 
 elif inp['exchange'] == 'binance':
-    import APIs.binance
+    import APIs.binance as binance
     API= binance.set(inp['APIK'],inp['APIS'])
     if 'USDT' in inp['Pair']:
         c1 = 'UDST'
@@ -331,7 +339,8 @@ if inp['Plot']:
     txt = 'Profit = {:5.2f}%\n{} Winning trade\n{} Losing trades\naverage win = {:5.2f}%\naverage loss = {:5.2f}%\nMax Loss = {:5.2f}%'.format(profit,nWin,nLoss,avgWin,avgLoss,maxLoss)
     plt.text(min(dates)*0.2, max(closes)*0.8, txt, bbox=dict(facecolor='gray', alpha=0.5))
     """
-    candlestick_ohlc(ax1,zip(dates,opens,highs,lows,closes),width=0.6, colorup='g')
+    datas  = {'dates': dates, 'opens': opens, 'highs': highs, 'lows': lows, 'closes': closes}
+    Candlestick(x=datas['dates'],open=datas['opens'],high=datas['highs'],low=datas['lows'],close=datas['closes'])
     plt.grid()
     plt.plot(dates,data.MA_20, 'r-')
     plt.plot(dates,data.MA_50, 'b-')

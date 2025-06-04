@@ -1,6 +1,6 @@
 backtest = True
 FIT	= False
-Plot	= False
+Plot	= True
 N	 = 5000
 StopLossType  = False
 TrailingStop  = True
@@ -9,8 +9,8 @@ StopLossValue = 5
 APIK	= HGKS3KMW-R1DRG5CJ-MMTPHA40-JVN9DR7L
 APIS	= 2670d0a7345b1529bc5ea43e993708c6c0a1216370d898bca83b29f32ac7734bb1767791c16ee4311229a6fdfb6819373d513eb2fc4955730c713e8b70e32d4c
 
-exchange	= poloniex
-Pair 		= USDT_BTC
+exchange	= binance
+Pair 		= BTCUSDT 
 period		= 14400
 
 MACD1		= 12
