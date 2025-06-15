@@ -4,7 +4,7 @@ import pprint,time
 import sys, getopt
 import numpy as np
 
-import indicators
+import SRC.indicators as indicators
 
 def StopLoss(prices, highs, lows, closes, stoploss, inp):
     if inp['StopLossType'] == 'Fix':

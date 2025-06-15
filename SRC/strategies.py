@@ -1,4 +1,4 @@
-import indicators
+import SRC.indicators as indicators
 import pandas as pd
 from numpy import asarray
 import FIT.fitParameters as fp

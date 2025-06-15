@@ -7,9 +7,9 @@ import pandas as pd
 from pandas import json_normalize
 import datetime
 
-import indicators
+import SRC.indicators as indicators
 import strategies
-import bot
+import SRC.bot as bot
 
 #from matplotlib.finance import candlestick2_ohlc
 from plotly.graph_objects import Candlestick
