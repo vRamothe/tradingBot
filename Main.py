@@ -6,8 +6,6 @@ import numpy as np
 import pandas as pd
 from pandas import json_normalize
 import datetime
-#import _tkinter
-import tkinter
 
 import indicators
 import strategies
@@ -340,7 +338,7 @@ if inp['Plot']:
     plt.text(min(dates)*0.2, max(closes)*0.8, txt, bbox=dict(facecolor='gray', alpha=0.5))
     """
     datas  = {'dates': dates, 'opens': opens, 'highs': highs, 'lows': lows, 'closes': closes}
-    Candlestick(x=datas['dates'],open=datas['opens'],high=datas['highs'],low=datas['lows'],close=datas['closes'])
+    ax1.add_image(Candlestick(x=datas['dates'],open=datas['opens'],high=datas['highs'],low=datas['lows'],close=datas['closes']))
     plt.grid()
     plt.plot(dates,data.MA_20, 'r-')
     plt.plot(dates,data.MA_50, 'b-')

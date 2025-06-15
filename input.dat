@@ -1,5 +1,5 @@
 backtest = True
-FIT	= False
+FIT	= True
 Plot	= True
 N	 = 5000
 StopLossType  = False
