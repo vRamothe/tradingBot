@@ -15,7 +15,6 @@ import bot
 from plotly.graph_objects import Candlestick
 import matplotlib
 import matplotlib.pyplot as plt
-matplotlib.use('tkagg')
 
 ##################
 # User Interface #
