@@ -1,7 +1,7 @@
-import SRC.indicators as indicators
+import SRC.lib.indicators as indicators
 import pandas as pd
 from numpy import asarray
-import FIT.fitParameters as fp
+import SRC.FIT.fitParameters as fp
 
 def reversal(df):
     df1 = df.shift(1)
@@ -86,7 +86,7 @@ def Signalsprocess(df,n):
 	x38 = overlap(df.MA_100,df.MA_50)
 	x39 = overlap(df.MA_50,df.MA_20)
 
-	inds = [x00,x01,x02,x03,x04,x05,x06,x07,x08,x09,x10,x11,x12,x13,x14,x15,x16,x17,x18,x19,x20,x21,x22,x23,x24,x25,x26,x27,x28,x29,x30,x31,x32,x33,x34,x35,x36,x37,x39]
+	inds = [x00,x01,x02,x03,x04,x05,x06,x07,x08,x09,x10,x11,x12,x13,x14,x15,x16,x17,x18,x19,x20,x21,x22,x23,x24,x25,x26,x27,x28,x29,x30,x31,x32,x33,x34,x35,x36,x37,x38,x39]
 
 	a00 = fp.a00#                 8.6237471E+03
 	a01 = fp.a01#                 6.6934229E+03
@@ -129,7 +129,7 @@ def Signalsprocess(df,n):
 	a38 = fp.a38#                 7.6967754E+03
 	a39 = fp.a39#                 8.6631582E+03
 
-	parm1 = [a00,a01,a02,a03,a04,a05,a06,a07,a08,a09,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36,a37,a39]
+	parm1 = [a00,a01,a02,a03,a04,a05,a06,a07,a08,a09,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36,a37,a38,a39]
 
 	for ii in range(len(parm1)):
 		inds[ii] *= parm1[ii]

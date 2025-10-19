@@ -1,91 +1,48 @@
-import hmac,hashlib
-import urllib,json
-import pprint,time
-import sys, getopt
-import numpy as np
+from time import sleep
+import SRC.lib.observer as observer
 
-import SRC.indicators as indicators
+class MasterBot:
+    def __init__(self,masterScreener):
+        self.bots = []
+        self.masterScreener = masterScreener
 
-def StopLoss(highs, lows, closes, stoploss, psar, bull, inp):
-    if inp['StopLossType'] == 'Fix':
-        result = closes[-1] - inp['StopLossValue']
-    elif inp['StopLossType'] == 'Rate':
-        result = closes[-1] - ( closes[-1] * float(inp['StopLossValue'])/100.)
-    elif inp['StopLossType'] == 'PSAR':
-        newstop = psar[-1]
-        if newstop < closes[-1]:
-            result = newstop
+    def add_bot(self,strategy, api, pair, timeframe):
+        bot = Bot(strategy, api, pair, timeframe)
+        self.bots.append(bot)
+
+    def find_bot(self, strategy, api, pair, timeframe):
+        for bot in self.bots:
+            if bot.strategy == strategy and bot.api == api and bot.pair == pair and bot.timeframe == timeframe:
+                return bot
+        return None
+    
+    def get_bot(self, strategy, api, pair, timeframe):
+        bot = self.find_bot(strategy, api, pair, timeframe)
+        if bot:
+            return bot
         else:
-            result = stoploss
-    elif inp['StopLossType'] == False:
-        result = 0
-    else:
-        print ('StopLossType should be \'Fix\' or \'Rate\'')
-        print('StopLossValue as to be a positive number')
-        sys.exit()
-    return result
+            self.add_bot(strategy, api, pair, timeframe)
+            bot = self.find_bot( strategy, api, pair, timeframe)
+            screneer = self.masterScreener.get_screener(pair, timeframe, api)
+            screneer.attach(bot)
+            return bot
 
-def update(b1,b2, opens, highs, lows, closes ,position ,stoploss ,dates ,trades ,inp ,signal, devsignal, psar, bull):
-    if inp['TrailingStop'] and position == 'open' :
-        stoploss = StopLoss(highs, lows, closes, stoploss, psar, bull, inp)
-
-    if devsignal > 0 and position == 'closed' and closes[-1] > stoploss:
-        position = 'open'
-        b2 = b1 / closes[-1] * (1-0.0015)
-        b1 = 0
-        trades.append([dates[-1],closes[-1], b2*closes[-1],'buy'])
-        stoploss = StopLoss(highs, lows, closes, stoploss, psar, bull, inp)
-
-    elif (lows[-1] < stoploss or devsignal <= 0 ) and position == 'open':
-        position = 'closed'
-        if lows[-1] < stoploss:
-            b1 = b2 * stoploss * (1-0.0015)
-            b2 = 0
-            trades.append([dates[-1],stoploss,b1,'stop'])
+class Bot(observer.Observer):
+    def __init__(self, strategy, api, pair, timeframe):
+        self.strategy = strategy
+        self.api = api
+        self.pair = pair
+        self.timeframe = timeframe
+        self.running = False
+        print(f"Bot initialized with strategy {self.strategy.name} on pair {self.pair}, on timeFrame {self.timeframe}, using {self.api} API.")
+        
+    def update(self, subject: observer.Subject) -> None:
+        print(f"\tBot with strategy {self.strategy.name} on pair {self.pair}, on timeFrame {self.timeframe}, using {self.api} API is apdated with new data.")
+        self.strategy.process_data(subject.get_data())
+        # Here you can add logic to execute trades based on strategy signals
+        if self.strategy.long:
+            print(f"\tBot executing long position on {self.pair} using {self.api} API.")
         else:
-            b1 = b2 * closes[-1] * (1-0.0015)
-            b2 = 0
-            trades.append([dates[-1],closes[-1],b1,'close'])
-        stoploss = 0
+            print(f"\tBot not in long position on {self.pair} using {self.api} API.")
 
-    if b1+b2 == 0:
-        print('Balance Lost')
-        sys.exit()
-    return(b1,b2,position,stoploss,trades)
-
-def supdate(b1,b2,prices, highs, lows, opens, closes ,position ,stoploss ,dates ,trades ,inp ,signal,psar, bull):
-    trade = signal
-    norm = 11
-    b2target = 0.5 * (1-np.cos(np.pi*trade/norm))
-    if b2target < 0:
-        b2target = 0
-    b1target = 1-b2target
-    btot = b1+b2 * closes[-1]
-    psar,bull = indicators.PSAR(highs,lows,closes)
-    if inp['TrailingStop'] and position == 'open' :
-        stoploss = StopLoss(prices, highs, lows, closes, stoploss, psar, bull, inp)
-
-    if trade > 0 :
-        position = 'open'
-        b2 = btot * b2target / closes[-1] #* (1-0.0015)
-        b1 = btot * b1target
-        trades.append([dates[-1],closes[-1],'buy'])
-        stoploss = StopLoss(prices, highs, lows, closes, stoploss, psar, bull, inp)
-
-    if closes[-1] < stoploss or trade <= 0 and position == 'open':
-        position = 'closed'
-        if closes[-1] <= stoploss:
-            b1 += b2 * stoploss #* (1-0.0015)
-            b2 = 0
-            trades.append([dates[-1],stoploss,'close'])
-        else:
-            b1 += b2 * closes[-1] #* (1-0.0015)
-            b2 = 0
-            trades.append([dates[-1],closes[-1],'close'])
-
-        stoploss = 0
-
-    if b1+b2 == 0:
-        print('Balance Lost')
-        sys.exit()
-    return(b1,b2,position,stoploss,trades)
+        

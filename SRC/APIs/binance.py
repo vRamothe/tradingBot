@@ -3,6 +3,7 @@ import hashlib
 import logging
 import requests
 import time
+import pandas as pd
 try:
     from urllib import urlencode
 
@@ -240,3 +241,16 @@ def formatNumber(x):
         return "{:.8f}".format(x)
     else:
         return str(x)
+
+def get_data(pair, timeframe):
+    data = klines(pair, timeframe)
+    return data
+
+def process_data(data):
+    for d in data:
+        for key in d:
+            if key in ['openTime', 'closeTime', 'numTrades']:
+                d[key] = int(d[key])
+            else:
+                d[key] = float(d[key])
+    return pd.DataFrame(data)
